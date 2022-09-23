@@ -1,6 +1,13 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import {
+  BehaviorSubject,
+  catchError,
+  finalize,
+  map,
+  Observable,
+  of,
+} from "rxjs";
 
 export interface data {
   type: string;
@@ -17,25 +24,31 @@ export interface data {
   address: string;
 }
 
+export interface api {
+  total: number;
+  data: data[];
+}
+
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class HttpService {
   data$: BehaviorSubject<data[]> = new BehaviorSubject<data[]>([]);
-  api: string = 'https://codebeautify.org/jsonviewer/cb1d6ce2';
+  api: string =
+    "https://raw.githubusercontent.com/antonkapustin/navigationPage/main/src/jsonviewer.json";
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<data[]> {
-    const data = this.http.get<data[]>(this.api).pipe(
+    const data = this.http.get<api>(this.api).pipe(
       map((response) => {
-        this.updateItems(response);
-        return response;
+        this.updateItems(response.data);
+        return response.data;
       }),
-      catchError(this.handleError<any>('GetData'))
+      catchError(this.handleError<any>("GetData"))
     );
     return data;
   }
-  private handleError<T>(operation = 'operation', result?: T) {
+  private handleError<T>(operation = "operation", result?: T) {
     return (error: any): Observable<T> => {
       console.error(error);
       return of(result as T);
@@ -46,5 +59,8 @@ export class HttpService {
   }
   getItems$(): BehaviorSubject<data[]> {
     return this.data$;
+  }
+  getItems(): data[] {
+    return this.data$.getValue();
   }
 }

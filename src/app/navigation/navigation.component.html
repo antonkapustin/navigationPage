@@ -1,1 +1,24 @@
-<p>navigation works!</p>
+<div class="navigation__header">
+  <a
+    *ngFor="let item of tabs; let i = index"
+    class="navigation__link"
+    routerLink="/navigation"
+    [class.navigation__link_active]="tabNumb == i"
+    [queryParams]="{ tab: i }"
+    >{{ item }}</a
+  >
+</div>
+<div class="navigation__content">
+  <ul class="navigation__list">
+    <li class="navigation__list-item">
+      <span class="navigation__text navigation__text_title">Name</span>
+      <span class="navigation__text navigation__text_title">Acount</span>
+    </li>
+    <li class="navigation__list-item" *ngFor="let item of sortedItems$ | async">
+      <span class="navigation__text"
+        >{{ item.name.last }} {{ item.name.first }}</span
+      >
+      <span class="navigation__text">{{ item._id }}</span>
+    </li>
+  </ul>
+</div>
