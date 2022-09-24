@@ -1,7 +1,15 @@
 import { Location } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, filter, map, Observable, Subscription } from "rxjs";
+import {
+  BehaviorSubject,
+  filter,
+  map,
+  Observable,
+  of,
+  Subscription,
+  switchMap,
+} from "rxjs";
 import { data, HttpService } from "../services/http.service";
 
 export enum Tabs {
@@ -29,11 +37,17 @@ export class NavigationComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    let subscription1 = this.httpService.getAll().subscribe((value) => {
-      this.onFiltration(value, this.tabNumb);
-    });
-
     this.location.replaceState("/navigation?tab=0");
+    let subscription1 = this.httpService
+      .getAll()
+      .pipe(
+        switchMap((data) => {
+          this.onFiltration(data, this.tabNumb);
+          return of(data);
+        })
+      )
+      .subscribe();
+
     let subscription2 = this.router.queryParams.subscribe((params) => {
       this.tabNumb = params["tab"];
       this.onFiltration(this.data$.getValue(), params["tab"]);
